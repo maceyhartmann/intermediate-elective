@@ -125,3 +125,124 @@ pools_vp |>
 # join species counts back to summary stats
 left_join(summary_stats, species_counts, by = "transect_name") -> summary_all
 ```
+
+
+```{r}
+#| label: figure
+#| fig-width: 8
+#| fig-height: 10
+
+# color choice
+prismatic::color(c("#6C5B7B", "#C06C84", "#F67280", "#F8B195"))
+
+# ggplot2
+vp_plot <- ggplot(summary_all) +
+
+  # make custom panel grid
+  geom_hline(yintercept = 0,   color = "lightgrey") +
+  geom_hline(yintercept = 200, color = "lightgrey") +
+  geom_hline(yintercept = 400, color = "lightgrey") +
+  geom_hline(yintercept = 600, color = "lightgrey") +
+  geom_hline(yintercept = 800, color = "lightgrey") +
+
+  # bars: pool ordered by cumulative cover, filled by species count
+  geom_col(aes(
+    x    = reorder(str_wrap(transect_name, 5), sum_cover),
+    y    = sum_cover,
+    fill = n),
+    position    = "dodge2",
+    show.legend = TRUE,
+    alpha       = .9) +
+
+  # fill gradient and legend title for number of species per pool
+  scale_fill_gradientn("Number of species",
+    colours = c("#6C5B7B", "#C06C84", "#F67280", "#F8B195")) +
+
+  # lollipop dot: mean native cover per pool
+  geom_point(aes(
+    x = reorder(str_wrap(transect_name, 5), sum_cover),
+    y = native_cover),
+    size  = 3,
+    color = "gray12") +
+
+  # lollipop shaft for native cover per pool
+  geom_segment(aes(
+    x    = reorder(str_wrap(transect_name, 5), sum_cover),
+    y    = 0,
+    xend = reorder(str_wrap(transect_name, 5), sum_cover),
+    yend = 800),
+    linetype = "dashed",
+    color    = "gray12") +
+
+  # annotate bars and lollipops so reader understands scaling
+  annotate(x     = 4.5,
+         y     = 950,
+         label = "Total Native\nCover [%]",
+         geom  = "text",
+         angle = -67.5,
+         color = "gray12",
+         size  = 5,
+         family = "playfair") +
+  annotate(x     = 9.5,
+         y     = 950,
+         label = "Cumulative Cover [%]",
+         geom  = "text",
+         angle = 23,
+         color = "gray12",
+         size  = 5,
+         family = "playfair") +
+  annotate(x = 9.7, y = 220, label = "200", geom = "text",
+         color = "gray12", family = "playfair") +
+  annotate(x = 9.7, y = 420, label = "400", geom = "text",
+         color = "gray12", family = "playfair") +
+  annotate(x = 9.7, y = 620, label = "600", geom = "text",
+         color = "gray12", family = "playfair") +
+  annotate(x = 9.7, y = 820, label = "800", geom = "text",
+         color = "gray12", family = "playfair") +
+
+  # scale y axis so bars don't start in the center
+  scale_y_continuous(
+    limits = c(-200, 850),
+    expand = c(0, 0),
+    breaks = c(0, 200, 400, 600, 800)) +
+
+  # title, subtitle, caption
+  labs(
+    title    = "\nVernal Pool Vegetation",
+    subtitle = paste("\nThis visualization shows the cumulative percent cover,",
+                     "the number of species and the total native cover per pool.\n",
+                     "VP-08 has the highest cumulative cover,",
+                     "while VP-03 has the greatest number of species recorded.",
+                     sep = "\n"),
+    caption  = "\nData: Coal Oil Point Reserve vernal pool vegetation monitoring\nVisualization inspired by Tobias Stalder · tobias-stalder.netlify.app") +
+
+  # transform to polar coordinate system
+  coord_polar() +
+
+  # theming
+  theme(
+    legend.position    = "bottom",
+    axis.title         = element_blank(),
+    axis.ticks         = element_blank(),
+    axis.text.y        = element_blank(),
+    axis.text.x        = element_text(color = "gray12", size = 12),
+    panel.background   = element_rect(fill = "white", color = "white"),
+    panel.grid         = element_blank(),
+    panel.grid.major.x = element_blank(),
+    text               = element_text(color = "gray12", family = "playfair"),
+    plot.title         = element_text(face = "bold", size = 25, hjust = 0.05),
+    plot.subtitle      = element_text(size = 14, hjust = 0.05),
+    plot.caption       = element_text(size = 10, hjust = 0.5)) +
+
+  guides(fill = guide_colorsteps(
+    barwidth       = 15,
+    barheight      = 0.5,
+    title.position = "top",
+    title.hjust    = 0.5))
+
+# display figure
+vp_plot
+```
+
+
+
