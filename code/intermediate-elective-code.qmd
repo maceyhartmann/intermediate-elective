@@ -18,14 +18,58 @@ execute:
 ```{r}
 #| label: reading-in-packages
 
+# general use
+library(tidyverse)
+
+# file organization
+library(here)
+
+# color display helper
+library(prismatic)
+
+# additional scales and formatting
+library(scales)
+
+# font support
+library(showtext)
+
+# Google font 
+font_add_google("Lato", "lato")
+showtext_auto()
+
 ```
 
 ```{r}
 #| label: reading-in-data
 
+# read in vegetation transect data
+veg <- read_csv(here("data", "veg.csv"))
+
+# read in pool-level metadata
+metadata <- read_csv(here("data", "vp_veg_metadata.csv"))
+
 ```
 
 
+# 1. Explain your inspiration
 
+I chose Tobias Stalder's "Hiking Locations in Washington" circular bar chart 
+as my inspiration. This visualization uses `coord_polar()` in `ggplot2` to 
+arrange grouped bars radially. His visualization contains bar 
+height, fill color, and an overlaid point and segment.
 
+This format makes sense for the vernal pool vegetation dataset because the 
+data contains multiple discrete pools (analogous to Stalder's hiking regions), 
+each with several continuous summary metrics worth comparing in a single figure. The circular layout compares many pools at once without a cluttered axis and the circular layout feels fitting for a dataset about pools.
 
+My visualization will display the following variables from `veg.csv` and 
+`vp_veg_metadata.csv`:
+
+- **Vernal pool** (`transect_name`): the categorical x-axis, arranged radially
+- **Cumulative percent cover** (`sum_pc`): mapped to bar height
+- **Number of plant species recorded** (`psoc`): mapped to fill color via a 
+continuous gradient
+- **Mean native percent cover** (filtered from `cover_category == "NATIVE COVER"`): 
+mapped to the lollipop point and segment overlaid on each bar
+
+# 2. 
