@@ -74,7 +74,7 @@ mapped to the point and segment overlaid on each bar
 
 # 2. Plan your figure
 
-![Sketch of vernal pool circular bar chart](../output/figure2.png)
+![Sketch of vernal pool circular bar chart](../images/figure2.png)
 
 # 3. Code your figure
 
@@ -243,7 +243,7 @@ vp_plot
 
 # save final figure as png at 100 dpi for readable text size
 ggsave(
-  filename = here("code", "vp_circular_barchart.png"),
+  filename = here("outputs", "vp_circular_barchart.png"),
   plot     = vp_plot,
   width    = 10,
   height   = 12,
