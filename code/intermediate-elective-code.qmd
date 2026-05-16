@@ -74,6 +74,7 @@ mapped to the point and segment overlaid on each bar
 
 # 2. Plan your figure
 
+![Sketch of vernal pool circular bar chart](../output/figure2.png)
 
 # 3. Code your figure
 
@@ -270,5 +271,10 @@ extensively, as my `sum_cover` values (~550–793) were much larger than
 expected and required expanding `scale_y_continuous()` to prevent bars from 
 being clipped.
 
-
+This visualization differs from figures I made in class and for assignments 
+as previous visualizations straightforward x and y axes, while this figure uses `coord_polar()` to 
+wrap bars into a circular layout. It also encodes three variables whereas class figures typically encoded one or two variables. 
+Additionally, this figure required significantly more wrangling and 
+customization, including custom annotations, a Google font, and careful 
+management of y-axis limits and color gradients.
 
