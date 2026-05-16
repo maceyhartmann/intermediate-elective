@@ -67,9 +67,153 @@ My visualization will display the following variables from `veg.csv` and
 
 - **Vernal pool** (`transect_name`): the categorical x-axis, arranged radially
 - **Cumulative percent cover** (`sum_pc`): mapped to bar height
-- **Number of plant species recorded** (`psoc`): mapped to fill color via a 
-continuous gradient
+- **Number of plant species recorded** (count of distinct psoc values per pool): mapped to fill color via a continuous gradient
 - **Mean native percent cover** (filtered from `cover_category == "NATIVE COVER"`): 
-mapped to the lollipop point and segment overlaid on each bar
+mapped to the point and segment overlaid on each bar
 
-# 2. 
+# 2. Plan your figure
+
+
+# 3. Code your figure
+
+```{r}
+#| label: wrangling
+
+# create new object from veg
+pools_vp <- veg |>
+  # filter to only vernal pool transects
+  filter(str_detect(transect_name, "VP")) |>
+  # complete all combinations of year, pool, species, distance
+  # fill missing percent cover values with 0
+  complete(year, transect_name, psoc, transect_distance,
+           fill = list(percent_cover = 0)) |>
+  # group by year, pool, and species
+  group_by(year, transect_name, psoc) |>
+  # calculate total percent cover across all quadrats
+  summarize(sum_pc = sum(percent_cover, na.rm = TRUE),
+            .groups = "drop") |>
+  # create year_pool column from year and transect name, keep originals
+  unite("year_pool", year, transect_name, remove = FALSE) |>
+  # join metadata to get number of quadrats per pool-year
+  left_join(metadata, by = "year_pool") |>
+  # calculate mean percent cover from total / number of quadrats
+  mutate(mean_pc = sum_pc / num_quad)|>
+  # rename transect_name.x back to transect_name after join conflict
+  rename(transect_name = transect_name.x) |>
+  # drop redundant columns brought in by metadata join
+  select(-year.x, -year.y, -transect_name.y)
+
+pools_vp |>
+  group_by(transect_name) |>
+  summarise(
+    # sum mean percent cover across all years and species per pool
+    sum_cover = sum(mean_pc, na.rm = TRUE),
+    # mean percent cover across all years and species per pool
+    mean_cover = mean(mean_pc, na.rm = TRUE)
+  ) -> summary_cover
+
+# count distinct species per pool
+pools_vp |>
+  group_by(transect_name) |>
+  summarise(n = n_distinct(psoc[mean_pc > 0])) -> species_counts
+
+# join species counts back to summary
+left_join(summary_cover, species_counts, by = "transect_name") -> summary_all
+```
+
+```{r}
+#| label: figure
+#| fig-width: 8
+#| fig-height: 8
+
+# preview color palette in console
+prismatic::color(c("#6C5B7B", "#C06C84", "#F67280", "#F8B195"))
+
+# store figure as object
+vp_plot <- ggplot(summary_all) +
+
+  # custom circular grid lines
+  geom_hline(yintercept = 0,   color = "lightgrey") +
+  geom_hline(yintercept = 50,  color = "lightgrey") +
+  geom_hline(yintercept = 100, color = "lightgrey") +
+  geom_hline(yintercept = 150, color = "lightgrey") +
+
+  # bars: x = pool ordered by cumulative cover, y = cumulative cover, fill = species count
+  geom_col(aes(
+    x    = reorder(str_wrap(transect_name, 5), sum_cover),
+    y    = sum_cover,
+    fill = n),
+    position    = "dodge2",
+    show.legend = TRUE,
+    alpha       = .9) +
+
+  # fill gradient matching Stalder's color palette
+  scale_fill_gradientn("Number of species",
+    colours = c("#6C5B7B", "#C06C84", "#F67280", "#F8B195")) +
+
+  # lollipop segment: dashed line from 0 to fixed height for reference
+  geom_segment(aes(
+    x    = reorder(str_wrap(transect_name, 5), sum_cover),
+    y    = 0,
+    xend = reorder(str_wrap(transect_name, 5), sum_cover),
+    yend = 150),
+    linetype = "dashed",
+    color    = "gray12") +
+
+  # lollipop dot: positioned at mean cover value per pool
+  geom_point(aes(
+    x = reorder(str_wrap(transect_name, 5), sum_cover),
+    y = mean_cover),
+    size  = 3,
+    color = "gray12") +
+
+  # scale y so bars don't start in the center of the polar plot
+  scale_y_continuous(
+    limits = c(-200, 900),
+    expand = c(0, 0),
+    breaks = c(0, 200, 400, 600, 800)) +
+
+  # title, subtitle, caption
+  labs(
+    title    = "\nVernal Pool Vegetation",
+    subtitle = paste("\nThis visualization shows cumulative percent cover,",
+                     "number of plant species recorded, and mean percent cover",
+                     "across eight vernal pools at Coal Oil Point Reserve.\n",
+                     sep = "\n"),
+    caption  = "\nData: Coal Oil Point Reserve vernal pool vegetation monitoring\nVisualization inspired by Tobias Stalder · tobias-stalder.netlify.app") +
+
+  # wrap bars into circular polar layout
+  coord_polar() +
+
+  # minimal theme matching Stalder's style
+  theme(
+    legend.position    = "bottom",
+    axis.title         = element_blank(),
+    axis.ticks         = element_blank(),
+    axis.text.y        = element_blank(),
+    axis.text.x        = element_text(color = "gray12", size = 11),
+    panel.background   = element_rect(fill = "white", color = "white"),
+    panel.grid         = element_blank(),
+    panel.grid.major.x = element_blank(),
+    text               = element_text(color = "gray12", family = "lato"),
+    plot.title         = element_text(face = "bold", size = 22, hjust = 0.05),
+    plot.subtitle      = element_text(size = 12, hjust = 0.05),
+    plot.caption       = element_text(size = 10, hjust = 0.5)) +
+
+  # format the legend color bar
+  guides(fill = guide_colorsteps(
+    barwidth       = 12,
+    barheight      = 0.5,
+    title.position = "top",
+    title.hjust    = 0.5))
+
+# display figure
+vp_plot
+```
+
+
+
+
+
+
+
