@@ -191,14 +191,14 @@ vp_plot <- ggplot(summary_all) +
          color = "gray12",
          size  = 5,
          family = "playfair") +
-  annotate(x = 9.7, y = 220, label = "200", geom = "text",
-         color = "gray12", family = "playfair") +
-  annotate(x = 9.7, y = 420, label = "400", geom = "text",
-         color = "gray12", family = "playfair") +
-  annotate(x = 9.7, y = 620, label = "600", geom = "text",
-         color = "gray12", family = "playfair") +
-  annotate(x = 9.7, y = 820, label = "800", geom = "text",
-         color = "gray12", family = "playfair") +
+  annotate(x = -0.5, y = 220, label = "200", geom = "text",
+         color = "gray12", family = "playfair", size = 3) +
+  annotate(x = -0.5, y = 420, label = "400", geom = "text",
+         color = "gray12", family = "playfair", size = 3) +
+  annotate(x = -0.5, y = 620, label = "600", geom = "text",
+         color = "gray12", family = "playfair", size = 3) +
+  annotate(x = -0.5, y = 820, label = "800", geom = "text",
+         color = "gray12", family = "playfair", size = 3) +
 
   # scale y axis so bars don't start in the center
   scale_y_continuous(
@@ -209,11 +209,13 @@ vp_plot <- ggplot(summary_all) +
   # title, subtitle, caption
   labs(
     title    = "\nVernal Pool Vegetation",
-    subtitle = paste("\nThis visualization shows the cumulative percent cover,",
-                     "the number of species and the total native cover per pool.\n",
-                     "VP-08 has the highest cumulative cover,",
-                     "while VP-03 has the greatest number of species recorded.",
-                     sep = "\n"),
+    subtitle = paste("\nThis visualization shows the cumulative percent cover",
+                 "across all species and survey years,",
+                 "the number of species recorded,",
+                 "and the total native cover per pool.\n",
+                 "VP-08 has the highest cumulative cover,",
+                 "while VP-03 has the greatest number of species recorded.",
+                 sep = "\n"),
     caption  = "\nData: Coal Oil Point Reserve vernal pool vegetation monitoring\nVisualization inspired by Tobias Stalder · tobias-stalder.netlify.app") +
 
   # transform to polar coordinate system
@@ -244,5 +246,17 @@ vp_plot <- ggplot(summary_all) +
 vp_plot
 ```
 
+```{r}
+#| label: save-figure
+
+# save final figure as png
+ggsave(
+  filename = here("code", "vp_circular_barchart.png"),
+  plot     = vp_plot,
+  width    = 10,
+  height   = 12,
+  units    = "in",
+  dpi      = 100)
+```
 
 
