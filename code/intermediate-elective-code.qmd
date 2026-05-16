@@ -1,0 +1,31 @@
+---
+title: "Intermediate Elective Option 2"
+author: "Macey Hartmann"
+date: "2026-05-15"
+format: 
+  pdf:
+    include-in-header: 
+       text: |
+         \usepackage{fvextra}
+         \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+         \DefineVerbatimEnvironment{OutputCode}{Verbatim}{breaklines,commandchars=\\\{\}}
+editor: source
+execute: 
+  message: false
+  warning: false
+---
+
+```{r}
+#| label: reading-in-packages
+
+```
+
+```{r}
+#| label: reading-in-data
+
+```
+
+
+
+
+
