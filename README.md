@@ -5,7 +5,7 @@
 This repository contains data and code to visualize cumulative percent cover, 
 number of plant species recorded, and total native cover across eight vernal 
 pools at NCOS. It also contains (edited) code from Tobias 
-Stalder's __["Hiking Locations in Washington"](https://github.com/toebR/Tidy-Tuesday)__ 
+Stalder's __["Hiking Locations in Washington"]https://github.com/toebR/Tidy-Tuesday/tree/master/hiking)__ 
 visualization, which was used as inspiration for the vernal pool vegetation visualization.
 
 To work with the code in this repository, you will need the following packages:
