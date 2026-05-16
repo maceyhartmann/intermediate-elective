@@ -115,6 +115,7 @@ pools_vp |>
                        na.rm = TRUE)
   ) |>
   # round native cover to match Stalder's mean_gain rounding
+  # store as summary_stats
   mutate(native_cover = round(native_cover, digits = 0)) -> summary_stats
 
 # count distinct species with non-zero cover per pool
@@ -132,10 +133,10 @@ left_join(summary_stats, species_counts, by = "transect_name") -> summary_all
 #| fig-width: 8
 #| fig-height: 10
 
-# color choice
+# display color palette in console for reference
 prismatic::color(c("#6C5B7B", "#C06C84", "#F67280", "#F8B195"))
 
-# ggplot2
+# store figure as object for saving
 vp_plot <- ggplot(summary_all) +
 
   # make custom panel grid
@@ -175,28 +176,16 @@ vp_plot <- ggplot(summary_all) +
     color    = "gray12") +
 
   # annotate bars and lollipops so reader understands scaling
-  annotate(x     = 4.5,
-         y     = 950,
-         label = "Total Native\nCover [%]",
-         geom  = "text",
-         angle = -67.5,
-         color = "gray12",
-         size  = 5,
-         family = "playfair") +
-  annotate(x     = 9.5,
-         y     = 950,
-         label = "Cumulative Cover [%]",
-         geom  = "text",
-         angle = 23,
-         color = "gray12",
-         size  = 5,
-         family = "playfair") +
+  # annotate scale: 200
   annotate(x = -0.5, y = 220, label = "200", geom = "text",
          color = "gray12", family = "playfair", size = 3) +
+  # annotate scale: 400
   annotate(x = -0.5, y = 420, label = "400", geom = "text",
          color = "gray12", family = "playfair", size = 3) +
+  # annotate scale: 600
   annotate(x = -0.5, y = 620, label = "600", geom = "text",
          color = "gray12", family = "playfair", size = 3) +
+  # annotate scale: 800
   annotate(x = -0.5, y = 820, label = "800", geom = "text",
          color = "gray12", family = "playfair", size = 3) +
 
@@ -211,14 +200,15 @@ vp_plot <- ggplot(summary_all) +
     title    = "\nVernal Pool Vegetation",
     subtitle = paste("\nThis visualization shows the cumulative percent cover",
                  "across all species and survey years,",
-                 "the number of species recorded,",
-                 "and the total native cover per pool.\n",
+                 "the number of species recorded (bar color),",
+                 "and the total native cover per pool (dot).\n",
                  "VP-08 has the highest cumulative cover,",
                  "while VP-03 has the greatest number of species recorded.",
                  sep = "\n"),
-    caption  = "\nData: Coal Oil Point Reserve vernal pool vegetation monitoring\nVisualization inspired by Tobias Stalder · tobias-stalder.netlify.app") +
+    caption  = "\nSource: Cheadle Center for Biodiversity and Ecological Restoration | Visualization: Macey Hartmann | Template: Tobias Stalder · github.com/toebR/Tidy-Tuesday",
+    fill     = "Number of species (color)") +
 
-  # transform to polar coordinate system
+  # wrap bars into circular polar layout
   coord_polar() +
 
   # theming
@@ -236,6 +226,7 @@ vp_plot <- ggplot(summary_all) +
     plot.subtitle      = element_text(size = 14, hjust = 0.05),
     plot.caption       = element_text(size = 10, hjust = 0.5)) +
 
+  # format the legend color bar
   guides(fill = guide_colorsteps(
     barwidth       = 15,
     barheight      = 0.5,
@@ -249,7 +240,7 @@ vp_plot
 ```{r}
 #| label: save-figure
 
-# save final figure as png
+# save final figure as png at 100 dpi for readable text size
 ggsave(
   filename = here("code", "vp_circular_barchart.png"),
   plot     = vp_plot,
@@ -258,5 +249,26 @@ ggsave(
   units    = "in",
   dpi      = 100)
 ```
+
+# 4. Describe your process
+
+To adapt Tobias Stalder's code for my dataset, I first found the 
+similarities between his hiking data and the vernal pool vegetation 
+data and his `region` became my `transect_name`, his `sum_length` became my 
+`sum_cover`, his track count (`n`) became my species count (`n_distinct(psoc)`), 
+and his `mean_gain` became my `native_cover`. I then repurposed his wrangling 
+structure using the class key's `complete()` and `left_join()` approach to 
+handle implicit zeros and pool-level metadata before summarizing to one row 
+per pool.
+
+The main challenge I encountered was a column naming conflict after 
+`left_join()` — both `veg` and the metadata contained `transect_name` and 
+`year`, which produced `.x` and `.y` suffixes that broke subsequent `group_by()` 
+calls. I resolved this by adding `rename()` and `select()` steps to clean up 
+the duplicate columns. I also had to troubleshoot the y-axis limits 
+extensively, as my `sum_cover` values (~550–793) were much larger than 
+expected and required expanding `scale_y_continuous()` to prevent bars from 
+being clipped.
+
 
 
