@@ -20,6 +20,7 @@ library(showtext)
 
 ## Data and file information
 
+```
 ├── README.md
 ├── code
 │   ├── intermediate-elective-code.qmd  # Vernal pool vegetation viz
@@ -32,6 +33,7 @@ library(showtext)
 ├── outputs
 │   └── vp_circular_barchart.png        # output of vegetation viz
 └── intermediate-elective.Rproj
+```
 
 ## Rendered output
 
