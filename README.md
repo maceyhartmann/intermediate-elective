@@ -38,3 +38,7 @@ library(showtext)
 ## Rendered output
 
 The rendered output can be found __[here](https://github.com/maceyhartmann/intermediate-elective/blob/main/code/intermediate-elective-code.pdf)__
+
+![Vernal Pool Vegetation](outputs/vp_circular_barchart.png)
+
+
